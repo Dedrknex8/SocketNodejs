@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
 <body>
@@ -24,7 +25,19 @@
         const messsageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input')
     
-        const username = prompt("Enter ur username : ");
+        let username = localStorage.getItem("username");
+
+        if(!username){
+            username = prompt("Enter ur username : ");
+            console.log(username);
+            
+            if(username && username.trim()){
+                localStorage.setItem("username",username.trim())
+            }else{
+                alert("username is required to join the chat");
+                location.reload();
+            }
+        }
 
         socket.emit('join',username);
 
@@ -37,7 +50,10 @@
         socket.on('userslist',(users)=>{
             userList.innerHTML  = users.map((user) =>`<li>${user}</li>`).join("");
         });
-
+        //HADNLE THE DISCONNECTED USER
+        socket.on('userleft',(users) =>{
+            addMessage(`${users} has left the chat`)
+        })
         //handle the form submittion
         messsageForm.addEventListener("submit", (event)=>{
             event.preventDefault(); //this will prevent from refreshing
